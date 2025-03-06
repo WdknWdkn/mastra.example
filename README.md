@@ -1,8 +1,15 @@
-# システムプロンプト付きエージェント
+# Mastra Examples
 
-システムプロンプトを使用してエージェントを作成する簡単な例です。
+このリポジトリには、Mastraを使用した様々な例が含まれています。
+
+## 例の一覧
+
+- [システムプロンプト付きエージェント](./system-prompt/README.md) - システムプロンプトを使用してエージェントを作成する簡単な例
+- [エージェンティックワークフロー](./agentic-workflows/README.md) - エージェンティックワークフローを作成する簡単な例
 
 ## 前提条件
+
+各例には独自の前提条件がありますが、一般的には以下が必要です：
 
 - Node.js v20.0+
 - pnpm（推奨）または npm
@@ -10,33 +17,4 @@
 
 ## 始め方
 
-1. リポジトリをクローンしてプロジェクトディレクトリに移動します：
-
-   ```bash
-   git clone https://github.com/WdknWdkn/mastra.example.git
-   cd mastra.example
-   ```
-
-2. 環境変数ファイルをコピーしてOpenAI APIキーを追加します：
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   次に`.env`を編集してOpenAI APIキーを追加します：
-
-   ```env
-   OPENAI_API_KEY=sk-your-api-key-here
-   ```
-
-3. 依存関係をインストールします：
-
-   ```
-   pnpm install
-   ```
-
-4. サンプルを実行します：
-
-   ```bash
-   pnpm start
-   ```
+各例のディレクトリに移動し、それぞれのREADME.mdファイルの指示に従ってください。
