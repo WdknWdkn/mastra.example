@@ -1,41 +1,41 @@
-# Agent with System Prompt
+# システムプロンプト付きエージェント
 
-A simple example showing how to create an agent with system prompt.
+システムプロンプトを使用してエージェントを作成する簡単な例です。
 
-## Prerequisites
+## 前提条件
 
 - Node.js v20.0+
-- pnpm (recommended) or npm
-- OpenAI API key
+- pnpm（推奨）または npm
+- OpenAI APIキー
 
-## Getting Started
+## 始め方
 
-1. Clone the repository and navigate to the project directory:
+1. リポジトリをクローンしてプロジェクトディレクトリに移動します：
 
    ```bash
    git clone https://github.com/WdknWdkn/mastra.example.git
    cd mastra.example
    ```
 
-2. Copy the environment variables file and add your OpenAI API key:
+2. 環境変数ファイルをコピーしてOpenAI APIキーを追加します：
 
    ```bash
    cp .env.example .env
    ```
 
-   Then edit `.env` and add your OpenAI API key:
+   次に`.env`を編集してOpenAI APIキーを追加します：
 
    ```env
    OPENAI_API_KEY=sk-your-api-key-here
    ```
 
-3. Install dependencies:
+3. 依存関係をインストールします：
 
    ```
    pnpm install
    ```
 
-4. Run the example:
+4. サンプルを実行します：
 
    ```bash
    pnpm start
