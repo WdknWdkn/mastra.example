@@ -9,6 +9,7 @@ graph TD
     A[mastra.example/] --> B[system-prompt/]
     A --> C[agentic-workflows/]
     A --> D[frontend-ui/]
+    A --> E[using-a-tool/]
     
     B --> B1[index.ts]
     B --> B2[package.json]
@@ -23,23 +24,30 @@ graph TD
     D --> D3[package.json]
     D --> D4[.env.example]
     
+    E --> E1[index.ts]
+    E --> E2[package.json]
+    E --> E3[.env.example]
+    
     style A fill:#f9f9f9,stroke:#333,stroke-width:1px
     style B fill:#d4f4ff,stroke:#333,stroke-width:1px
     style C fill:#ffe6cc,stroke:#333,stroke-width:1px
     style D fill:#e6ffcc,stroke:#333,stroke-width:1px
+    style E fill:#ffcccc,stroke:#333,stroke-width:1px
 ```
 
 | ディレクトリ | 説明 |
 |------------|------|
 | `system-prompt/` | システムプロンプトを使用して猫の事実を提供するエージェントを作成する例。 |
 | `agentic-workflows/` | 天気予報データを取得し、それに基づいてアクティビティを提案するワークフローを作成する例。 |
-| `frontend-ui/` | 上記の2つの例を使用したフロントエンドUIアプリケーション。猫の専門家チャットと天気予報アプリを含みます。 |
+| `frontend-ui/` | 上記の例を使用したフロントエンドUIアプリケーション。猫の専門家チャット、天気予報アプリ、天気アシスタントを含みます。 |
+| `using-a-tool/` | エージェントがツールを使用する例。天気データを取得するためのカスタムツールを作成し、エージェントがそれを使用して天気情報を提供します。 |
 
 ## 例の一覧
 
 - [システムプロンプト付きエージェント](./system-prompt/README.md) - システムプロンプトを使用してエージェントを作成する簡単な例
 - [エージェンティックワークフロー](./agentic-workflows/README.md) - エージェンティックワークフローを作成する簡単な例
-- [猫の専門家チャットフロントエンド](./frontend-ui/README.md) - システムプロンプト付きエージェントを使用したフロントエンドUI
+- [ツールを使用するエージェント](./using-a-tool/README.md) - エージェントがカスタムツールを使用する簡単な例
+- [フロントエンドUI](./frontend-ui/README.md) - 上記の例を使用したフロントエンドUIアプリケーション
 
 ## 開発環境のセットアップ
 
