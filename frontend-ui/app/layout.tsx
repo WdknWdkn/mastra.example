@@ -2,8 +2,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '猫の専門家チャット',
-  description: '猫に関する質問に答える猫の専門家AIチャットボット',
+  title: 'Mastra Examples',
+  description: 'Mastraを使用した様々な例を紹介するアプリケーション',
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body className="bg-gray-50">{children}</body>
     </html>
   );
 }
