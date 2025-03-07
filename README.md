@@ -2,6 +2,39 @@
 
 このリポジトリには、Mastraを使用した様々な例が含まれています。
 
+## プロジェクト構造
+
+```mermaid
+graph TD
+    A[mastra.example/] --> B[system-prompt/]
+    A --> C[agentic-workflows/]
+    A --> D[frontend-ui/]
+    
+    B --> B1[index.ts]
+    B --> B2[package.json]
+    B --> B3[.env.example]
+    
+    C --> C1[index.ts]
+    C --> C2[package.json]
+    C --> C3[.env.example]
+    
+    D --> D1[app/]
+    D --> D2[components/]
+    D --> D3[package.json]
+    D --> D4[.env.example]
+    
+    style A fill:#f9f9f9,stroke:#333,stroke-width:1px
+    style B fill:#d4f4ff,stroke:#333,stroke-width:1px
+    style C fill:#ffe6cc,stroke:#333,stroke-width:1px
+    style D fill:#e6ffcc,stroke:#333,stroke-width:1px
+```
+
+| ディレクトリ | 説明 |
+|------------|------|
+| `system-prompt/` | システムプロンプトを使用して猫の事実を提供するエージェントを作成する例。 |
+| `agentic-workflows/` | 天気予報データを取得し、それに基づいてアクティビティを提案するワークフローを作成する例。 |
+| `frontend-ui/` | 上記の2つの例を使用したフロントエンドUIアプリケーション。猫の専門家チャットと天気予報アプリを含みます。 |
+
 ## 例の一覧
 
 - [システムプロンプト付きエージェント](./system-prompt/README.md) - システムプロンプトを使用してエージェントを作成する簡単な例

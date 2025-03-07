@@ -2,6 +2,29 @@
 
 エージェンティックワークフローを作成する簡単な例です。このサンプルでは、天気予報データを取得し、それに基づいてアクティビティを提案するワークフローを作成します。
 
+## ファイル構造と役割
+
+```mermaid
+graph TD
+    A[agentic-workflows/] --> B[index.ts]
+    A --> C[package.json]
+    A --> D[.env.example]
+    A --> E[README.md]
+    
+    style A fill:#f9f9f9,stroke:#333,stroke-width:1px
+    style B fill:#d4f4ff,stroke:#333,stroke-width:1px
+    style C fill:#ffe6cc,stroke:#333,stroke-width:1px
+    style D fill:#e6ffcc,stroke:#333,stroke-width:1px
+    style E fill:#f9d5e5,stroke:#333,stroke-width:1px
+```
+
+| ファイル名 | 役割 |
+|------------|------|
+| `index.ts` | メインのアプリケーションコード。天気予報データを取得し、それに基づいてアクティビティを提案するワークフローを定義します。`fetchWeather`ステップと`planActivities`ステップを含むワークフローを作成します。 |
+| `package.json` | プロジェクトの依存関係と実行スクリプトを定義します。`@ai-sdk/openai`、`@mastra/core`、`ai`、`zod`などの依存関係が含まれています。 |
+| `.env.example` | 環境変数のテンプレートファイル。OpenAI APIキーを設定するために使用します。 |
+| `README.md` | プロジェクトの説明、セットアップ手順、実行方法などのドキュメントを提供します。 |
+
 ## 開発環境のセットアップ
 
 ### 前提条件
