@@ -1,14 +1,16 @@
 # システムプロンプト付きエージェント
 
-システムプロンプトを使用してエージェントを作成する簡単な例です。
+システムプロンプトを使用してエージェントを作成する簡単な例です。このサンプルでは、猫に関する事実を提供するエージェントを作成します。
 
-## 前提条件
+## 開発環境のセットアップ
+
+### 前提条件
 
 - Node.js v20.0+
 - pnpm（推奨）または npm
 - OpenAI APIキー
 
-## 始め方
+### インストール手順
 
 1. リポジトリをクローンしてプロジェクトディレクトリに移動します：
 
@@ -17,26 +19,51 @@
    cd mastra.example/system-prompt
    ```
 
-2. 環境変数ファイルをコピーしてOpenAI APIキーを追加します：
+2. 依存関係をインストールします：
+
+   ```bash
+   pnpm install
+   # または
+   npm install
+   ```
+
+### OpenAI APIキーの設定
+
+サンプルを実行するには、OpenAI APIキーが必要です：
+
+1. 環境変数ファイルをコピーします：
 
    ```bash
    cp .env.example .env
    ```
 
-   次に`.env`を編集してOpenAI APIキーを追加します：
+2. `.env`ファイルを編集してOpenAI APIキーを追加します：
 
    ```env
    OPENAI_API_KEY=sk-your-api-key-here
    ```
 
-3. 依存関係をインストールします：
+## サンプルの実行
 
-   ```
-   pnpm install
-   ```
+設定が完了したら、サンプルを実行できます：
 
-4. サンプルを実行します：
+```bash
+pnpm start
+# または
+npm start
+```
 
-   ```bash
-   pnpm start
-   ```
+## トラブルシューティング
+
+### OpenAI APIキーエラー
+
+以下のようなエラーが表示される場合は、OpenAI APIキーが正しく設定されていません：
+
+```
+LoadAPIKeyError [AI_LoadAPIKeyError]: OpenAI API key is missing. Pass it using the 'apiKey' parameter or the OPENAI_API_KEY environment variable.
+```
+
+解決方法：
+1. `.env.example`ファイルを`.env`にコピーしたことを確認
+2. `.env`ファイルに有効なOpenAI APIキーが設定されていることを確認
+3. アプリケーションを再起動
