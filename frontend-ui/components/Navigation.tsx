@@ -28,6 +28,14 @@ export default function Navigation() {
           >
             天気予報とアクティビティ
           </Link>
+          <Link 
+            href="/weather-tool" 
+            className={`px-3 py-2 rounded-lg ${
+              pathname === '/weather-tool' ? 'bg-blue-800' : 'hover:bg-blue-700'
+            }`}
+          >
+            天気アシスタント
+          </Link>
         </div>
       </div>
     </nav>
