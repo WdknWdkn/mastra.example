@@ -178,7 +178,28 @@ export async function POST(req: NextRequest) {
     try {
       // 位置情報を取得
       const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`;
-      const geocodingResponse = await fetch(geocodingUrl);
+      
+      // タイムアウト付きのfetch関数
+      const fetchWithTimeout = async (url: string, options = {}, timeout = 10000) => {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        
+        try {
+          const response = await fetch(url, {
+            ...options,
+            signal: controller.signal
+          });
+          clearTimeout(id);
+          return response;
+        } catch (error) {
+          clearTimeout(id);
+          throw error;
+        }
+      };
+      
+      console.log('位置情報APIにリクエスト送信中...');
+      const geocodingResponse = await fetchWithTimeout(geocodingUrl);
+      console.log('位置情報APIからレスポンス受信');
       const geocodingData = await geocodingResponse.json();
 
       if (!geocodingData.results?.[0]) {
@@ -192,7 +213,10 @@ export async function POST(req: NextRequest) {
 
       // 天気予報を取得
       const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_mean,weathercode&timezone=auto`;
-      const weatherResponse = await fetch(weatherUrl);
+      
+      console.log('天気予報APIにリクエスト送信中...');
+      const weatherResponse = await fetchWithTimeout(weatherUrl, {}, 15000);
+      console.log('天気予報APIからレスポンス受信');
       const data = await weatherResponse.json();
 
       // 予報データを整形
@@ -216,10 +240,73 @@ export async function POST(req: NextRequest) {
         activities: agentResponse.text,
         forecast: forecast,
       });
-    } catch (innerError) {
+    } catch (innerError: any) {
       console.error('天気データの取得中にエラーが発生しました:', innerError);
+      
+      // モックデータを提供（APIが利用できない場合のフォールバック）
+      if (innerError.name === 'AbortError' || innerError.cause?.code === 'ETIMEDOUT') {
+        console.log('APIタイムアウト - モックデータを使用します');
+        
+        // 東京のモックデータ
+        const mockForecast = [
+          {
+            date: new Date().toISOString().split('T')[0],
+            maxTemp: 22,
+            minTemp: 15,
+            precipitationChance: 10,
+            condition: '晴れ',
+            location: city || '東京',
+          },
+          {
+            date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+            maxTemp: 23,
+            minTemp: 16,
+            precipitationChance: 20,
+            condition: '晴れ時々曇り',
+            location: city || '東京',
+          },
+          {
+            date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
+            maxTemp: 21,
+            minTemp: 14,
+            precipitationChance: 30,
+            condition: '曇り',
+            location: city || '東京',
+          }
+        ];
+        
+        // モックデータを使用してアクティビティを提案
+        try {
+          const mockPrompt = `以下の${city || '東京'}の天気予報に基づいて、適切なアクティビティを提案してください：
+            ${JSON.stringify(mockForecast, null, 2)}
+          `;
+          
+          const agentResponse = await agent.generate(mockPrompt);
+          
+          return NextResponse.json({
+            activities: agentResponse.text,
+            forecast: mockForecast,
+            isMockData: true
+          });
+        } catch (agentError: any) {
+          console.error('エージェントの実行中にエラーが発生しました:', agentError);
+          return NextResponse.json(
+            { 
+              error: 'ネットワークエラーが発生し、代替データの生成にも失敗しました。インターネット接続を確認してください。',
+              details: agentError.message
+            },
+            { status: 500 }
+          );
+        }
+      }
+      
+      // その他のエラー
       return NextResponse.json(
-        { error: '天気データの取得中にエラーが発生しました' },
+        { 
+          error: '天気データの取得中にエラーが発生しました', 
+          details: innerError.message,
+          code: innerError.cause?.code
+        },
         { status: 500 }
       );
     }
