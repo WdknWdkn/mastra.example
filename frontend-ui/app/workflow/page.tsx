@@ -33,17 +33,27 @@ export default function WorkflowPage() {
         body: JSON.stringify({ topic }),
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'APIリクエストに失敗しました');
-      }
-      
       const data = await response.json();
       console.log('API Response:', data);
+      
+      if (!response.ok) {
+        // Handle API error response
+        const errorMessage = data.error || 'APIリクエストに失敗しました';
+        console.error('API Error:', errorMessage);
+        
+        if (data.apiKeyError) {
+          setError('OpenAI APIキーが無効または設定されていません。.envファイルに有効なAPIキーを設定してください。');
+        } else {
+          setError(errorMessage);
+        }
+        return;
+      }
       
       // Check if data is empty
       if (!data.blogPost && (!data.steps.copywriter && !data.steps.editor)) {
         console.warn('APIからの応答が空です。OpenAI APIキーが正しく設定されているか確認してください。');
+        setError('ブログ記事の生成に失敗しました。OpenAI APIキーが正しく設定されているか確認してください。');
+        return;
       }
       
       setBlogPost(data.blogPost);
