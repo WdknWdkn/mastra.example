@@ -77,6 +77,14 @@ export default function Navigation() {
             並列ワークフロー
           </Link>
           <Link 
+            href="/branching-workflow" 
+            className={`px-3 py-2 rounded-lg ${
+              pathname === '/branching-workflow' ? 'bg-blue-800' : 'hover:bg-blue-700'
+            }`}
+          >
+            分岐パスワークフロー
+          </Link>
+          <Link 
             href="/bird-checker" 
             className={`px-3 py-2 rounded-lg ${
               pathname === '/bird-checker' ? 'bg-blue-800' : 'hover:bg-blue-700'
