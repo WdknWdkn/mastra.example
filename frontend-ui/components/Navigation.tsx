@@ -44,6 +44,14 @@ export default function Navigation() {
           >
             ブログ記事ジェネレーター
           </Link>
+          <Link 
+            href="/workflow" 
+            className={`px-3 py-2 rounded-lg ${
+              pathname === '/workflow' ? 'bg-blue-800' : 'hover:bg-blue-700'
+            }`}
+          >
+            ワークフローブログ
+          </Link>
         </div>
       </div>
     </nav>
