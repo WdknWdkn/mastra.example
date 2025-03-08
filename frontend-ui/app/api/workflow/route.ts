@@ -32,7 +32,9 @@ const editorAgent = new Agent({
 const editorStep = new Step({
   id: 'editorStep',
   execute: async ({ context }) => {
-    const copy = context?.getStepResult('copywriterStep')?.copy;
+    // Add type assertion to access the copy property
+    const copywriterResult = context?.getStepResult('copywriterStep') as { copy?: string } | undefined;
+    const copy = copywriterResult?.copy;
 
     if (!copy) {
       throw new Error('コピーライターステップの結果が見つかりません');
@@ -68,21 +70,38 @@ export async function POST(req: NextRequest) {
     }
 
     const { runId, start } = blogPostWorkflow.createRun();
+    console.log('Starting workflow with topic:', topic);
     const res = await start({ triggerData: { topic } });
+    console.log('Workflow results:', JSON.stringify(res.results, null, 2));
     
-    const finalResult = res.results.editorStep?.copy || res.results.copywriterStep?.copy || '';
+    // Add type assertion to access the copy property
+    const copywriterResult = res.results.copywriterStep as { copy?: string } | undefined;
+    const editorResult = res.results.editorStep as { copy?: string } | undefined;
+    
+    const finalResult = editorResult?.copy || copywriterResult?.copy || '';
+    console.log('Final blog post:', finalResult);
+    console.log('Copywriter step:', copywriterResult?.copy);
+    console.log('Editor step:', editorResult?.copy);
     
     return NextResponse.json({ 
       blogPost: finalResult,
       steps: {
-        copywriter: res.results.copywriterStep?.copy || '',
-        editor: res.results.editorStep?.copy || ''
+        copywriter: copywriterResult?.copy || '',
+        editor: editorResult?.copy || ''
       }
     });
   } catch (error) {
     console.error('エラー:', error);
+    
+    // Add more detailed error information
+    let errorMessage = 'リクエストの処理中にエラーが発生しました';
+    if (error instanceof Error) {
+      errorMessage = `エラー: ${error.message}`;
+      console.error('エラースタック:', error.stack);
+    }
+    
     return NextResponse.json(
-      { error: 'リクエストの処理中にエラーが発生しました' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
