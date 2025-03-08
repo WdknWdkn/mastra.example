@@ -34,10 +34,18 @@ export default function WorkflowPage() {
       });
       
       if (!response.ok) {
-        throw new Error('APIリクエストに失敗しました');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'APIリクエストに失敗しました');
       }
       
       const data = await response.json();
+      console.log('API Response:', data);
+      
+      // Check if data is empty
+      if (!data.blogPost && (!data.steps.copywriter && !data.steps.editor)) {
+        console.warn('APIからの応答が空です。OpenAI APIキーが正しく設定されているか確認してください。');
+      }
+      
       setBlogPost(data.blogPost);
       setSteps({
         copywriter: data.steps.copywriter,
