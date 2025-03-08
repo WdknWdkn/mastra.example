@@ -87,14 +87,17 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // Add type assertion to access the copy property
-    const copywriterResult = res.results.copywriterStep as { copy?: string } | undefined;
-    const editorResult = res.results.editorStep as { copy?: string } | undefined;
+    // Extract the copy from the output property based on the server logs
+    const copywriterResult = res.results.copywriterStep as { status: string; output?: { copy: string } } | undefined;
+    const editorResult = res.results.editorStep as { status: string; output?: { copy: string } } | undefined;
     
-    const finalResult = editorResult?.copy || copywriterResult?.copy || '';
+    const copywriterText = copywriterResult?.status === 'success' ? copywriterResult.output?.copy : '';
+    const editorText = editorResult?.status === 'success' ? editorResult.output?.copy : '';
+    
+    const finalResult = editorText || copywriterText || '';
     console.log('Final blog post:', finalResult);
-    console.log('Copywriter step:', copywriterResult?.copy);
-    console.log('Editor step:', editorResult?.copy);
+    console.log('Copywriter step:', copywriterText);
+    console.log('Editor step:', editorText);
     
     // If we have no content but no explicit error was caught, return a generic error
     if (!finalResult) {
@@ -110,8 +113,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ 
       blogPost: finalResult,
       steps: {
-        copywriter: copywriterResult?.copy || '',
-        editor: editorResult?.copy || ''
+        copywriter: copywriterText || '',
+        editor: editorText || ''
       }
     });
   } catch (error) {
