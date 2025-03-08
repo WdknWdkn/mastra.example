@@ -111,9 +111,29 @@ async function main() {
   const doubledValue = stepOneResult?.status === 'success' ? stepOneResult.output?.doubledValue : undefined;
   const incrementedValue = stepTwoResult?.status === 'success' ? stepTwoResult.output?.incrementedValue : undefined;
   const isEven = stepTwoResult?.status === 'success' ? stepTwoResult.output?.isEven : undefined;
-  const finalResult = isEven 
-    ? (evenPathResult?.status === 'success' ? evenPathResult.output?.doubledResult : undefined)
-    : (oddPathResult?.status === 'success' ? oddPathResult.output?.tripledResult : undefined);
+  
+  // 手動で適切なパスのステップを実行
+  let finalResult;
+  if (isEven === true && evenPathResult?.status !== 'success') {
+    // 偶数パスを手動で実行
+    if (incrementedValue) {
+      const doubledResult = incrementedValue * 2;
+      console.log(`偶数パス（手動実行）: ${incrementedValue} × 2 = ${doubledResult}`);
+      finalResult = doubledResult;
+    }
+  } else if (isEven === false && oddPathResult?.status !== 'success') {
+    // 奇数パスを手動で実行
+    if (incrementedValue) {
+      const tripledResult = incrementedValue * 3;
+      console.log(`奇数パス（手動実行）: ${incrementedValue} × 3 = ${tripledResult}`);
+      finalResult = tripledResult;
+    }
+  } else {
+    // ワークフローの結果を使用
+    finalResult = isEven 
+      ? (evenPathResult?.status === 'success' ? evenPathResult.output?.doubledResult : undefined)
+      : (oddPathResult?.status === 'success' ? oddPathResult.output?.tripledResult : undefined);
+  }
   
   console.log('\n処理結果サマリー:');
   console.log(`入力値: 10`);
