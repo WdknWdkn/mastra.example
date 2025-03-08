@@ -74,6 +74,19 @@ export async function POST(req: NextRequest) {
     const res = await start({ triggerData: { topic } });
     console.log('Workflow results:', JSON.stringify(res.results, null, 2));
     
+    // Check for failed steps and return error information
+    if (res.results.copywriterStep && 'status' in res.results.copywriterStep && res.results.copywriterStep.status === 'failed') {
+      const error = res.results.copywriterStep.error || 'コピーライターステップが失敗しました';
+      console.error('Workflow step failed:', error);
+      return NextResponse.json(
+        { 
+          error: `ワークフローエラー: ${error}`,
+          apiKeyError: error.includes('API key') 
+        },
+        { status: 500 }
+      );
+    }
+    
     // Add type assertion to access the copy property
     const copywriterResult = res.results.copywriterStep as { copy?: string } | undefined;
     const editorResult = res.results.editorStep as { copy?: string } | undefined;
@@ -82,6 +95,17 @@ export async function POST(req: NextRequest) {
     console.log('Final blog post:', finalResult);
     console.log('Copywriter step:', copywriterResult?.copy);
     console.log('Editor step:', editorResult?.copy);
+    
+    // If we have no content but no explicit error was caught, return a generic error
+    if (!finalResult) {
+      return NextResponse.json(
+        { 
+          error: 'ブログ記事の生成に失敗しました。OpenAI APIキーが正しく設定されているか確認してください。',
+          apiKeyError: true
+        },
+        { status: 500 }
+      );
+    }
     
     return NextResponse.json({ 
       blogPost: finalResult,
