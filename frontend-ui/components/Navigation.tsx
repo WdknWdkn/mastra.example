@@ -11,7 +11,7 @@ export default function Navigation() {
     <nav className="bg-blue-600 text-white p-4">
       <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center">
         <div className="text-xl font-bold mb-4 sm:mb-0">Mastra Examples</div>
-        <div className="flex space-x-4">
+        <div className="flex flex-wrap space-x-2 space-y-2 sm:space-y-0 sm:space-x-4">
           <Link 
             href="/" 
             className={`px-3 py-2 rounded-lg ${
@@ -35,6 +35,14 @@ export default function Navigation() {
             }`}
           >
             天気アシスタント
+          </Link>
+          <Link 
+            href="/blog-post" 
+            className={`px-3 py-2 rounded-lg ${
+              pathname === '/blog-post' ? 'bg-blue-800' : 'hover:bg-blue-700'
+            }`}
+          >
+            ブログ記事ジェネレーター
           </Link>
         </div>
       </div>
