@@ -1,0 +1,25 @@
+{
+  "name": "mastra-examples",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "create-workflow-example",
+    "sequential-workflow-example",
+    "parallel-workflow-example",
+    "branching-workflow-example",
+    "frontend-ui"
+  ],
+  "scripts": {
+    "dev:frontend": "cd frontend-ui && pnpm dev",
+    "start:create-workflow": "cd create-workflow-example && pnpx tsx index.ts",
+    "start:sequential-workflow": "cd sequential-workflow-example && pnpx tsx index.ts",
+    "start:parallel-workflow": "cd parallel-workflow-example && pnpx tsx index.ts",
+    "start:branching-workflow": "cd branching-workflow-example && pnpx tsx index.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "latest",
+    "ai": "latest",
+    "@mastra/core": "latest",
+    "zod": "^3.24.1"
+  }
+}
