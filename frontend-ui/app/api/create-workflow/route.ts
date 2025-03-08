@@ -33,7 +33,9 @@ const copywriterAgent = new Agent({
 const copywriterStep = new Step({
   id: 'copywriterStep',
   execute: async ({ context }) => {
-    const outline = context?.getStepResult('plannerStep')?.outline;
+    // Add type assertion to access the outline property
+    const plannerResult = context?.getStepResult('plannerStep') as { outline?: string } | undefined;
+    const outline = plannerResult?.outline;
 
     if (!outline) {
       throw new Error('企画ステップの結果が見つかりません');
@@ -57,7 +59,9 @@ const editorAgent = new Agent({
 const editorStep = new Step({
   id: 'editorStep',
   execute: async ({ context }) => {
-    const draft = context?.getStepResult('copywriterStep')?.draft;
+    // Add type assertion to access the draft property
+    const copywriterResult = context?.getStepResult('copywriterStep') as { draft?: string } | undefined;
+    const draft = copywriterResult?.draft;
 
     if (!draft) {
       throw new Error('コピーライターステップの結果が見つかりません');
@@ -93,14 +97,55 @@ export async function POST(request: NextRequest) {
 
     const { runId, start } = createWorkflow.createRun();
     const result = await start({ triggerData: { topic } });
-
-    return NextResponse.json({
-      blogPost: result.results.editorStep.finalPost,
+    
+    console.log('Workflow results:', JSON.stringify(result.results, null, 2));
+    
+    // Check for failed steps and return error information
+    if (result.results.plannerStep && 'status' in result.results.plannerStep && result.results.plannerStep.status === 'failed') {
+      const error = result.results.plannerStep.error || 'プランナーステップが失敗しました';
+      console.error('Workflow step failed:', error);
+      return NextResponse.json(
+        { 
+          error: `ワークフローエラー: ${error}`,
+          apiKeyError: error.includes('API key') 
+        },
+        { status: 500 }
+      );
+    }
+    
+    // Extract the results from the output property based on the workflow structure
+    const plannerResult = result.results.plannerStep as { status: string; output?: { outline: string } } | undefined;
+    const copywriterResult = result.results.copywriterStep as { status: string; output?: { draft: string } } | undefined;
+    const editorResult = result.results.editorStep as { status: string; output?: { finalPost: string } } | undefined;
+    
+    const plannerText = plannerResult?.status === 'success' ? plannerResult.output?.outline : '';
+    const copywriterText = copywriterResult?.status === 'success' ? copywriterResult.output?.draft : '';
+    const editorText = editorResult?.status === 'success' ? editorResult.output?.finalPost : '';
+    
+    const finalResult = editorText || '';
+    console.log('Final blog post:', finalResult);
+    console.log('Planner step:', plannerText);
+    console.log('Copywriter step:', copywriterText);
+    console.log('Editor step:', editorText);
+    
+    // If we have no content but no explicit error was caught, return a generic error
+    if (!finalResult) {
+      return NextResponse.json(
+        { 
+          error: 'ブログ記事の生成に失敗しました。OpenAI APIキーが正しく設定されているか確認してください。',
+          apiKeyError: true
+        },
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json({ 
+      blogPost: finalResult,
       steps: {
-        planner: result.results.plannerStep.outline,
-        copywriter: result.results.copywriterStep.draft,
-        editor: result.results.editorStep.finalPost,
-      },
+        planner: plannerText || '',
+        copywriter: copywriterText || '',
+        editor: editorText || ''
+      }
     });
   } catch (error: any) {
     console.error('Error in create-workflow API:', error);
