@@ -52,6 +52,14 @@ export default function Navigation() {
           >
             ワークフローブログ
           </Link>
+          <Link 
+            href="/bird-checker" 
+            className={`px-3 py-2 rounded-lg ${
+              pathname === '/bird-checker' ? 'bg-blue-800' : 'hover:bg-blue-700'
+            }`}
+          >
+            鳥チェッカー
+          </Link>
         </div>
       </div>
     </nav>
