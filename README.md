@@ -1,15 +1,15 @@
 # Mastra Examples
 
-このリポジトリには、Mastraフレームワークを使用した様々な例が含まれています。
+Mastraフレームワークを使用した様々なワークフローの例を提供するリポジトリです。
 
-## プロジェクト構成
+## プロジェクト構造
 
 このプロジェクトは以下のディレクトリで構成されています：
 
 - `create-workflow-example`: 基本的なワークフロー作成の例
-- `sequential-workflow-example`: シーケンシャルステップを持つワークフローの例
-- `parallel-workflow-example`: 並列ステップを持つワークフローの例
-- `branching-workflow-example`: 条件分岐パスを持つワークフローの例
+- `sequential-workflow-example`: シーケンシャルワークフローの例
+- `parallel-workflow-example`: 並列ワークフローの例
+- `branching-workflow-example`: 分岐パスワークフローの例
 - `frontend-ui`: すべての例のフロントエンドインターフェース
 
 ## セットアップ
@@ -26,36 +26,40 @@ pnpm install
 cp .env.example .env
 ```
 
-3. `.env`ファイルを編集して、必要なAPIキーを追加します：
+3. `.env` ファイルを編集して、OpenAI APIキーを追加します：
 
 ```
-OPENAI_API_KEY=your_openai_api_key
+OPENAI_API_KEY=your_api_key_here
 ```
 
-## 実行方法
+## 使用方法
 
-### フロントエンドの起動
+### フロントエンドの実行
 
 ```bash
 pnpm dev:frontend
 ```
 
-### 各ワークフロー例の実行
+フロントエンドは http://localhost:3000 で利用できます。
+
+### バックエンドの例の実行
+
+各ワークフロー例を実行するには：
 
 ```bash
-# 基本的なワークフロー作成の例
+# 基本的なワークフロー作成
 pnpm start:create-workflow
 
-# シーケンシャルステップを持つワークフローの例
+# シーケンシャルワークフロー
 pnpm start:sequential-workflow
 
-# 並列ステップを持つワークフローの例
+# 並列ワークフロー
 pnpm start:parallel-workflow
 
-# 条件分岐パスを持つワークフローの例
+# 分岐パスワークフロー
 pnpm start:branching-workflow
 ```
 
-## 例の説明
+## ライセンス
 
-各ディレクトリには、それぞれのワークフロータイプを示す例が含まれています。詳細については、各ディレクトリ内のREADME.mdファイルを参照してください。
+MIT
