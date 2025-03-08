@@ -1,0 +1,46 @@
+{
+  "name": "mastra-examples",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "create-workflow-example",
+    "sequential-workflow-example",
+    "parallel-workflow-example",
+    "branching-workflow-example",
+    "frontend-ui",
+    "system-prompt",
+    "using-a-tool",
+    "agentic-workflows",
+    "multi-agent-workflow",
+    "bird-checker",
+    "hierarchical-multi-agent"
+  ],
+  "scripts": {
+    "dev:frontend": "cd frontend-ui && pnpm dev",
+    "build:frontend": "cd frontend-ui && pnpm build",
+    "start:frontend": "cd frontend-ui && pnpm start",
+    "start:create-workflow": "cd create-workflow-example && pnpx tsx index.ts",
+    "start:sequential-workflow": "cd sequential-workflow-example && pnpx tsx index.ts",
+    "start:parallel-workflow": "cd parallel-workflow-example && pnpx tsx index.ts",
+    "start:branching-workflow": "cd branching-workflow-example && pnpx tsx index.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "latest",
+    "ai": "latest",
+    "@mastra/core": "latest",
+    "zod": "^3.24.1",
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
+    "typescript": "^5.0.0",
+    "tsx": "^4.19.3"
+  }
+}
