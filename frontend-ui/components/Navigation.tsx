@@ -61,6 +61,14 @@ export default function Navigation() {
             3ステップブログ記事
           </Link>
           <Link 
+            href="/sequential-workflow" 
+            className={`px-3 py-2 rounded-lg ${
+              pathname === '/sequential-workflow' ? 'bg-blue-800' : 'hover:bg-blue-700'
+            }`}
+          >
+            シーケンシャルワークフロー
+          </Link>
+          <Link 
             href="/bird-checker" 
             className={`px-3 py-2 rounded-lg ${
               pathname === '/bird-checker' ? 'bg-blue-800' : 'hover:bg-blue-700'
