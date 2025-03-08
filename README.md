@@ -10,6 +10,7 @@ graph TD
     A --> C[agentic-workflows/]
     A --> D[frontend-ui/]
     A --> E[using-a-tool/]
+    A --> F[hierarchical-multi-agent/]
     
     B --> B1[index.ts]
     B --> B2[package.json]
@@ -28,25 +29,32 @@ graph TD
     E --> E2[package.json]
     E --> E3[.env.example]
     
+    F --> F1[index.ts]
+    F --> F2[package.json]
+    F --> F3[.env.example]
+    
     style A fill:#f9f9f9,stroke:#333,stroke-width:1px
     style B fill:#d4f4ff,stroke:#333,stroke-width:1px
     style C fill:#ffe6cc,stroke:#333,stroke-width:1px
     style D fill:#e6ffcc,stroke:#333,stroke-width:1px
     style E fill:#ffcccc,stroke:#333,stroke-width:1px
+    style F fill:#ffccff,stroke:#333,stroke-width:1px
 ```
 
 | ディレクトリ | 説明 |
 |------------|------|
 | `system-prompt/` | システムプロンプトを使用して猫の事実を提供するエージェントを作成する例。 |
 | `agentic-workflows/` | 天気予報データを取得し、それに基づいてアクティビティを提案するワークフローを作成する例。 |
-| `frontend-ui/` | 上記の例を使用したフロントエンドUIアプリケーション。猫の専門家チャット、天気予報アプリ、天気アシスタントを含みます。 |
+| `frontend-ui/` | 上記の例を使用したフロントエンドUIアプリケーション。猫の専門家チャット、天気予報アプリ、天気アシスタント、ブログ記事ジェネレーターを含みます。 |
 | `using-a-tool/` | エージェントがツールを使用する例。天気データを取得するためのカスタムツールを作成し、エージェントがそれを使用して天気情報を提供します。 |
+| `hierarchical-multi-agent/` | 階層的マルチエージェントシステムの例。一つのエージェントが他のエージェントを調整して複雑なタスクを実行します。 |
 
 ## 例の一覧
 
 - [システムプロンプト付きエージェント](./system-prompt/README.md) - システムプロンプトを使用してエージェントを作成する簡単な例
 - [エージェンティックワークフロー](./agentic-workflows/README.md) - エージェンティックワークフローを作成する簡単な例
 - [ツールを使用するエージェント](./using-a-tool/README.md) - エージェントがカスタムツールを使用する簡単な例
+- [階層的マルチエージェント](./hierarchical-multi-agent/README.md) - 階層的マルチエージェントシステムを作成する簡単な例
 - [フロントエンドUI](./frontend-ui/README.md) - 上記の例を使用したフロントエンドUIアプリケーション
 
 ## 開発環境のセットアップ
