@@ -53,6 +53,14 @@ export default function Navigation() {
             ワークフローブログ
           </Link>
           <Link 
+            href="/create-workflow" 
+            className={`px-3 py-2 rounded-lg ${
+              pathname === '/create-workflow' ? 'bg-blue-800' : 'hover:bg-blue-700'
+            }`}
+          >
+            3ステップブログ記事
+          </Link>
+          <Link 
             href="/bird-checker" 
             className={`px-3 py-2 rounded-lg ${
               pathname === '/bird-checker' ? 'bg-blue-800' : 'hover:bg-blue-700'
