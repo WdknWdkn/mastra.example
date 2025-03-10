@@ -92,6 +92,14 @@ export default function Navigation() {
           >
             鳥チェッカー
           </Link>
+          <Link 
+            href="/real-estate" 
+            className={`px-3 py-2 rounded-lg ${
+              pathname === '/real-estate' ? 'bg-blue-800' : 'hover:bg-blue-700'
+            }`}
+          >
+            物件検索エージェント
+          </Link>
         </div>
       </div>
     </nav>
