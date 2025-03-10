@@ -185,7 +185,7 @@ function searchProperties(properties: any[], criteria: Record<string, any>, limi
 // APIルート
 export async function POST(req: NextRequest) {
   try {
-    const { message, isInitialLoad } = await req.json();
+    const { message, isInitialLoad, threadId } = await req.json();
 
     // 初回ロード時は物件データを読み込む
     if (isInitialLoad) {
@@ -223,43 +223,22 @@ export async function POST(req: NextRequest) {
       await loadPropertiesFromCSV(100);
     }
 
-    // エージェントに応答を生成させる
-    // 実際のエージェント実装を使用
-    let agentResponse;
-    try {
-      const result = await realEstateAgentResponse(message);
-      agentResponse = result.response;
-    } catch (error) {
-      console.error('エージェント応答生成中にエラーが発生しました:', error);
-      // モック応答を生成
-      const mockResult = await generateMockResponse(message);
-      agentResponse = mockResult.response;
-    }
-
-    // 簡易的な条件抽出（実際のプロダクションでは、より高度なNLPを使用）
-    const extractedCriteria: Record<string, any> = {};
+    // CSVディレクトリパス
+    const csvPath = path.join(process.cwd(), '..', 'attachments', '6d3de071-7518-4fae-83f8-ead6ee9b3e7a', 'properties');
     
-    // 予算の抽出
-    const budgetMatch = message.match(/(\d+)万円/);
-    if (budgetMatch) {
-      const budget = parseInt(budgetMatch[1]) * 10000;
-      extractedCriteria['賃料・価格'] = { max: budget };
+    // ワークフローを実行
+    const result = await executeRealEstateWorkflow(csvPath, message, undefined, threadId);
+    
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error || 'ワークフロー実行中にエラーが発生しました' },
+        { status: 500 }
+      );
     }
     
-    // エリアの抽出
-    const areaMatches = message.match(/(東京|横浜|大阪|名古屋|福岡|札幌|京都|神戸|さいたま|千葉|広島|仙台|川崎|北九州|堺)/g);
-    if (areaMatches && areaMatches.length > 0) {
-      extractedCriteria['所在地名称'] = areaMatches[0];
-    }
-    
-    // 間取りの抽出
-    const layoutMatch = message.match(/(1LDK|2LDK|3LDK|4LDK|1K|1DK|2K|2DK|3K|3DK|4K|4DK)/i);
-    if (layoutMatch) {
-      extractedCriteria['間取り備考'] = layoutMatch[0];
-    }
-
-    // 検索条件に基づいて物件を検索
-    const properties = searchProperties(allPropertiesCache, extractedCriteria, 5);
+    // 検索結果から物件データを取得
+    const searchResult = result.results?.search as { properties?: any[] } | undefined;
+    const workflowProperties = searchResult?.properties || [];
 
     // 地域の抽出
     const regionMatch = message.match(/(東京|大阪|福岡)/g);
@@ -281,11 +260,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      response: agentResponse,
-      properties: properties,
+      response: result.recommendation,
+      properties: workflowProperties.length > 0 ? workflowProperties : allPropertiesCache.slice(0, 5),
       regionProperties: regionProperties.length > 0 ? regionProperties : undefined,
-      preferences: extractedCriteria,
-      regions: REGIONS,
+      regions: result.regions || REGIONS,
+      threadId: result.threadId, // スレッドIDを返す
     });
   } catch (error) {
     console.error('リクエスト処理中にエラーが発生しました:', error);

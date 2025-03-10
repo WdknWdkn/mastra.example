@@ -69,15 +69,18 @@ export const searchStep = new Step({
   description: '希望条件に基づいて物件を検索します',
   inputSchema: z.object({
     criteria: z.record(z.any()).describe('検索条件'),
+    query: z.string().optional().describe('テキスト検索クエリ'),
   }),
   outputSchema: z.object({
     properties: z.array(z.record(z.string(), z.any())).describe('検索結果の物件データ'),
     count: z.number().describe('検索結果の数'),
   }),
   execute: async ({ context }) => {
-    const criteria = context?.getStepResult<{ preferences: Record<string, any> }>('conversation')?.preferences;
+    const conversationResult = context?.getStepResult<{ preferences: Record<string, any> }>('conversation');
+    const criteria = conversationResult?.preferences || {};
+    const userMessage = context?.getStepResult<{ message: string }>('trigger')?.message || '';
     
-    if (!criteria || Object.keys(criteria).length === 0) {
+    if (Object.keys(criteria).length === 0 && !userMessage) {
       return {
         properties: [],
         count: 0,

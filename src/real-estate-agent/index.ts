@@ -3,7 +3,7 @@ import { Agent, Workflow } from '@mastra/core';
 import { z } from 'zod';
 import { initializeStoreTool, searchPropertiesTool } from './tools/propertyStore';
 import { csvParserTool } from './tools/csvParser';
-import { saveMessageTool, savePreferenceTool, extractSearchCriteriaTool } from './components/memory';
+import { conversationMemory, saveMessageTool, savePreferenceTool, extractSearchCriteriaTool } from './components/memory';
 import { findSimilarPropertiesTool, recommendPropertiesTool } from './components/retrieval';
 import { loadDataStep, conversationStep, searchStep, recommendStep } from './workflow/steps';
 
@@ -19,16 +19,26 @@ export const realEstateAgent = new Agent({
   
   【会話の流れ】
   1. ユーザーの希望条件を聞き出す
-  2. 予算、エリア、間取り、駅からの距離などの条件を確認する
-  3. 条件に合った物件を検索する
-  4. 検索結果に基づいて物件を提案する
-  5. ユーザーからのフィードバックを受けて条件を調整する
+  2. 以下の必須項目を確認する
+     - 予算: 具体的な金額（例: 10万円以内）
+     - エリア: 希望する地域（例: 東京都新宿区）
+     - 間取り: 希望する間取り（例: 1LDK）
+     - 駅からの距離: 徒歩何分以内か（例: 徒歩10分以内）
+     - 広さ: 希望する広さ（例: 30㎡以上）
+     - 特徴: 重視する条件（例: ペット可、オートロック）
+  3. 未回答の項目があれば、質問して情報を集める
+  4. 条件に合った物件を検索する
+  5. 検索結果に基づいて物件を提案する
+  6. ユーザーからのフィードバックを受けて条件を調整する
   
   【注意点】
   - 常に丁寧で親しみやすい口調を心がけてください
   - 専門用語は避け、わかりやすい言葉で説明してください
   - ユーザーの予算や希望を尊重してください
   - 物件情報は正確に伝えてください
+  - 必須項目が埋まっていない場合は、自然な会話の流れで質問してください
+  - 一度に多くの質問をせず、会話を自然に進めてください
+  - ユーザーの回答から複数の条件を抽出できる場合は、効率的に情報を集めてください
   
   あなたはユーザーの希望に合った物件を見つけるための頼れるパートナーです。`,
   model: openai('gpt-4o-mini'),
@@ -51,6 +61,7 @@ export const realEstateWorkflow = new Workflow({
     filePath: z.string().optional().describe('CSVファイルのパスまたはディレクトリパス'),
     region: z.string().optional().describe('特定の地域のCSVファイルを読み込む場合の地域名'),
     message: z.string().optional().describe('ユーザーのメッセージ'),
+    threadId: z.string().optional().describe('会話スレッドID'),
   }),
 });
 
@@ -64,17 +75,26 @@ realEstateWorkflow
 realEstateWorkflow.commit();
 
 // ワークフロー実行関数
-export async function executeRealEstateWorkflow(filePath: string, message: string, region?: string) {
+export async function executeRealEstateWorkflow(filePath: string, message: string, region?: string, threadId?: string) {
   try {
     const { runId, start } = realEstateWorkflow.createRun();
     
     console.log('ワークフロー実行ID:', runId);
     
+    // スレッドIDが提供されている場合は設定
+    if (threadId) {
+      conversationMemory.setThread(threadId);
+    } else {
+      // ワークフロー実行IDをスレッドIDとして使用
+      conversationMemory.setThread(runId);
+    }
+    
     const res = await start({
-      triggerData: {
+     triggerData: {
         filePath,
         message,
         region,
+        threadId: threadId || runId,
       },
     });
     
@@ -87,6 +107,7 @@ export async function executeRealEstateWorkflow(filePath: string, message: strin
       results: res.results,
       recommendation: recommendResult?.recommendation || '物件の提案ができませんでした。',
       regions: loadDataResult?.regions || [],
+      threadId: threadId || runId, // スレッドIDを返す
     };
   } catch (error) {
     console.error('ワークフロー実行中にエラーが発生しました:', error);
@@ -98,12 +119,18 @@ export async function executeRealEstateWorkflow(filePath: string, message: strin
 }
 
 // エージェント応答生成関数
-export async function generateAgentResponse(message: string) {
+export async function generateAgentResponse(message: string, threadId?: string) {
   try {
+    // スレッドIDが提供されている場合は設定
+    if (threadId) {
+      conversationMemory.setThread(threadId);
+    }
+    
     const result = await realEstateAgent.generate(message);
     return {
       success: true,
       response: result.text,
+      threadId: threadId || conversationMemory.getCurrentThreadId(),
     };
   } catch (error) {
     console.error('エージェント応答生成中にエラーが発生しました:', error);
