@@ -7,10 +7,10 @@
     "dev:frontend": "cd frontend-ui && next dev",
     "build:frontend": "cd frontend-ui && next build",
     "start:frontend": "cd frontend-ui && next start",
-    "start:create-workflow": "tsx create-workflow-example/index.ts",
-    "start:sequential-workflow": "tsx sequential-workflow-example/index.ts",
-    "start:parallel-workflow": "tsx parallel-workflow-example/index.ts",
-    "start:branching-workflow": "tsx branching-workflow-example/index.ts"
+    "start:create-workflow": "tsx src/create-workflow-example/index.ts",
+    "start:sequential-workflow": "tsx src/sequential-workflow-example/index.ts",
+    "start:parallel-workflow": "tsx src/parallel-workflow-example/index.ts",
+    "start:branching-workflow": "tsx src/branching-workflow-example/index.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",
