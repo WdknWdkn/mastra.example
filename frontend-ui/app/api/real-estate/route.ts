@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs';
+import { generateAgentResponse as realEstateAgentResponse, executeRealEstateWorkflow } from '../../../../src/real-estate-agent/index';
 
 // 物件エージェントのインポート
 // モック実装のためのインターフェース
@@ -10,9 +11,9 @@ interface AgentResponse {
   error?: string;
 }
 
-// モックエージェント応答生成関数
-async function generateAgentResponse(message: string): Promise<AgentResponse> {
-  // 実際のエージェント実装がない場合のモック応答
+// モックエージェント応答生成関数（実際のエージェントが利用できない場合のフォールバック）
+async function generateMockResponse(message: string): Promise<AgentResponse> {
+  // モック応答
   return {
     success: true,
     response: `ご希望の条件をお聞かせください。${message}に関連する物件を探してみます。予算、エリア、間取りなどの条件をより詳しくお伝えいただければ、最適な物件をご提案いたします。`
@@ -178,15 +179,16 @@ export async function POST(req: NextRequest) {
     }
 
     // エージェントに応答を生成させる
-    // 注意: 実際のエージェント実装がない場合はモック応答を返す
+    // 実際のエージェント実装を使用
     let agentResponse;
     try {
-      const result = await generateAgentResponse(message);
+      const result = await realEstateAgentResponse(message);
       agentResponse = result.response;
     } catch (error) {
       console.error('エージェント応答生成中にエラーが発生しました:', error);
       // モック応答を生成
-      agentResponse = `ご希望の条件をお聞かせください。予算、エリア、間取りなどの条件をお伝えいただければ、最適な物件をご提案いたします。`;
+      const mockResult = await generateMockResponse(message);
+      agentResponse = mockResult.response;
     }
 
     // 簡易的な条件抽出（実際のプロダクションでは、より高度なNLPを使用）
