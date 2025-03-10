@@ -167,6 +167,11 @@ export default function RealEstatePage() {
       if (data.properties && data.properties.length > 0) {
         setProperties(data.properties);
       }
+      
+      // 地域別物件データがある場合は追加
+      if (data.regionProperties && data.regionProperties.length > 0) {
+        setProperties(prev => [...prev, ...data.regionProperties]);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '不明なエラーが発生しました');
       console.error('APIエラー:', err);
