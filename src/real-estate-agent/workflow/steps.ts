@@ -8,14 +8,18 @@ export const loadDataStep = new Step({
   id: 'load-data',
   description: 'CSVファイルから物件データを読み込みます',
   inputSchema: z.object({
-    filePath: z.string().describe('CSVファイルのパス'),
+    filePath: z.string().describe('CSVファイルのパスまたはディレクトリパス'),
+    region: z.string().optional().describe('特定の地域のCSVファイルを読み込む場合の地域名'),
   }),
   outputSchema: z.object({
     success: z.boolean().describe('読み込みが成功したかどうか'),
     count: z.number().describe('読み込んだ物件の数'),
+    regions: z.array(z.string()).optional().describe('読み込んだ地域のリスト'),
   }),
   execute: async ({ context }) => {
-    const filePath = context?.getStepResult<{ filePath: string }>('trigger')?.filePath;
+    const triggerResult = context?.getStepResult<{ filePath: string; region?: string }>('trigger');
+    const filePath = triggerResult?.filePath;
+    const region = triggerResult?.region;
     
     if (!filePath) {
       throw new Error('ファイルパスが提供されていません');
@@ -27,6 +31,7 @@ export const loadDataStep = new Step({
     return {
       success: true,
       count: 0, // 実際の値はワークフロー実行時に設定されます
+      regions: [], // 実際の値はワークフロー実行時に設定されます
     };
   },
 });

@@ -48,7 +48,8 @@ export const realEstateAgent = new Agent({
 export const realEstateWorkflow = new Workflow({
   name: 'real-estate-workflow',
   triggerSchema: z.object({
-    filePath: z.string().optional().describe('CSVファイルのパス'),
+    filePath: z.string().optional().describe('CSVファイルのパスまたはディレクトリパス'),
+    region: z.string().optional().describe('特定の地域のCSVファイルを読み込む場合の地域名'),
     message: z.string().optional().describe('ユーザーのメッセージ'),
   }),
 });
@@ -63,7 +64,7 @@ realEstateWorkflow
 realEstateWorkflow.commit();
 
 // ワークフロー実行関数
-export async function executeRealEstateWorkflow(filePath: string, message: string) {
+export async function executeRealEstateWorkflow(filePath: string, message: string, region?: string) {
   try {
     const { runId, start } = realEstateWorkflow.createRun();
     
@@ -73,15 +74,19 @@ export async function executeRealEstateWorkflow(filePath: string, message: strin
       triggerData: {
         filePath,
         message,
+        region,
       },
     });
     
     // StepResult doesn't have direct access to output properties
     const recommendResult = res.results.recommend as { status: string; recommendation?: string } | undefined;
+    const loadDataResult = res.results['load-data'] as { regions?: string[] } | undefined;
+    
     return {
       success: true,
       results: res.results,
       recommendation: recommendResult?.recommendation || '物件の提案ができませんでした。',
+      regions: loadDataResult?.regions || [],
     };
   } catch (error) {
     console.error('ワークフロー実行中にエラーが発生しました:', error);
@@ -112,19 +117,22 @@ export async function generateAgentResponse(message: string) {
 // テスト用関数
 async function main() {
   try {
-    const csvPath = process.env.CSV_PATH || './attachments/6d3de071-7518-4fae-83f8-ead6ee9b3e7a/1.csv';
+    const csvPath = process.env.CSV_PATH || './attachments/6d3de071-7518-4fae-83f8-ead6ee9b3e7a/properties';
     const testMessage = '東京で予算10万円以内の物件を探しています。駅から近いところがいいです。';
+    const region = process.env.REGION; // 特定の地域を指定する場合
     
     console.log('CSVパス:', csvPath);
     console.log('テストメッセージ:', testMessage);
+    if (region) console.log('指定地域:', region);
     
-    const result = await executeRealEstateWorkflow(csvPath, testMessage);
+    const result = await executeRealEstateWorkflow(csvPath, testMessage, region);
     
     if (result.success) {
       console.log('ワークフロー実行結果:');
       console.log(JSON.stringify(result.results, null, 2));
       console.log('\n物件提案:');
       console.log(result.recommendation);
+      console.log('\n利用可能な地域:', result.regions?.join(', ') || 'なし');
     } else {
       console.error('エラー:', result.error);
     }
