@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createBirdCheckerAgent, runBirdChecker } from '../../../../bird-checker/index';
+import { createBirdCheckerAgent, runBirdChecker } from '../../../../src/bird-checker/index';
 
 export async function POST(req: NextRequest) {
   try {

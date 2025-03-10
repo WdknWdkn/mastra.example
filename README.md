@@ -6,10 +6,17 @@ Mastraフレームワークを使用した様々なワークフローの例を�
 
 このプロジェクトは以下のディレクトリで構成されています：
 
-- `create-workflow-example`: 基本的なワークフロー作成の例
-- `sequential-workflow-example`: シーケンシャルワークフローの例
-- `parallel-workflow-example`: 並列ワークフローの例
-- `branching-workflow-example`: 分岐パスワークフローの例
+- `src/create-workflow-example`: 基本的なワークフロー作成の例
+- `src/sequential-workflow-example`: シーケンシャルワークフローの例
+- `src/parallel-workflow-example`: 並列ワークフローの例
+- `src/branching-workflow-example`: 分岐パスワークフローの例
+- `src/agentic-workflows`: エージェンティックワークフローの例
+- `src/bird-checker`: 鳥チェッカーの例
+- `src/hierarchical-multi-agent`: 階層的マルチエージェントの例
+- `src/multi-agent-workflow`: マルチエージェントワークフローの例
+- `src/real-estate-agent`: 不動産エージェントの例
+- `src/system-prompt`: システムプロンプトの例
+- `src/using-a-tool`: ツールを使用するエージェントの例
 - `frontend-ui`: すべての例のフロントエンドインターフェース
 
 ## セットアップ
@@ -58,6 +65,9 @@ pnpm start:parallel-workflow
 
 # 分岐パスワークフロー
 pnpm start:branching-workflow
+
+# その他の例を実行するには、srcディレクトリ内の対応するディレクトリに移動して実行します
+# 例: cd src/system-prompt && pnpm install && pnpm start
 ```
 
 ## ライセンス
