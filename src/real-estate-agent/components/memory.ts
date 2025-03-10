@@ -3,42 +3,96 @@ import { z } from 'zod';
 
 // 会話履歴を保存するクラス
 class ConversationMemory {
-  private messages: { role: string; content: string }[] = [];
-  private preferences: Record<string, any> = {};
+  private threads: Record<string, {
+    messages: { role: string; content: string }[];
+    preferences: Record<string, any>;
+  }> = {};
+  private currentThreadId: string | null = null;
+  
+  // スレッドを設定
+  setThread(threadId: string): void {
+    if (!this.threads[threadId]) {
+      this.threads[threadId] = {
+        messages: [],
+        preferences: {},
+      };
+    }
+    this.currentThreadId = threadId;
+  }
+  
+  // 現在のスレッドIDを取得
+  getCurrentThreadId(): string | null {
+    return this.currentThreadId;
+  }
   
   // メッセージを追加
-  addMessage(role: string, content: string): void {
-    this.messages.push({ role, content });
+  addMessage(role: string, content: string, threadId?: string): void {
+    const tid = threadId || this.currentThreadId;
+    if (!tid) throw new Error('スレッドIDが設定されていません');
+    
+    if (!this.threads[tid]) this.setThread(tid);
+    
+    this.threads[tid].messages.push({ role, content });
   }
   
   // 会話履歴を取得
-  getMessages(): { role: string; content: string }[] {
-    return this.messages;
+  getMessages(threadId?: string): { role: string; content: string }[] {
+    const tid = threadId || this.currentThreadId;
+    if (!tid) return [];
+    
+    if (!this.threads[tid]) return [];
+    
+    return [...this.threads[tid].messages];
   }
   
   // 会話履歴をクリア
-  clearMessages(): void {
-    this.messages = [];
+  clearMessages(threadId?: string): void {
+    const tid = threadId || this.currentThreadId;
+    if (!tid) return;
+    
+    if (this.threads[tid]) {
+      this.threads[tid].messages = [];
+    }
   }
   
   // ユーザー設定を保存
-  savePreference(key: string, value: any): void {
-    this.preferences[key] = value;
+  savePreference(key: string, value: any, threadId?: string): void {
+    const tid = threadId || this.currentThreadId;
+    if (!tid) throw new Error('スレッドIDが設定されていません');
+    
+    if (!this.threads[tid]) this.setThread(tid);
+    
+    this.threads[tid].preferences[key] = value;
   }
   
   // ユーザー設定を取得
-  getPreference(key: string): any {
-    return this.preferences[key];
+  getPreference(key: string, threadId?: string): any {
+    const tid = threadId || this.currentThreadId;
+    if (!tid) return undefined;
+    
+    if (!this.threads[tid]) return undefined;
+    
+    return this.threads[tid].preferences[key];
   }
   
   // すべてのユーザー設定を取得
-  getAllPreferences(): Record<string, any> {
-    return { ...this.preferences };
+  getAllPreferences(threadId?: string): Record<string, any> {
+    const tid = threadId || this.currentThreadId;
+    if (!tid) return {};
+    
+    if (!this.threads[tid]) return {};
+    
+    return { ...this.threads[tid].preferences };
   }
   
   // ユーザー設定をクリア
-  clearPreferences(): void {
-    this.preferences = {};
+  clearPreferences(threadId?: string): void {
+    const tid = threadId || this.currentThreadId;
+    if (!tid) return;
+    
+    if (this.threads[tid]) {
+      this.threads[tid].preferences = {};
+    }
   }
 }
 
@@ -52,13 +106,14 @@ export const saveMessageTool = createTool({
   inputSchema: z.object({
     role: z.string().describe('メッセージの役割（user/assistant）'),
     content: z.string().describe('メッセージの内容'),
+    threadId: z.string().optional().describe('会話スレッドID'),
   }),
   outputSchema: z.object({
     success: z.boolean().describe('保存が成功したかどうか'),
   }),
   execute: async ({ context }) => {
     try {
-      conversationMemory.addMessage(context.role, context.content);
+      conversationMemory.addMessage(context.role, context.content, context.threadId);
       return { success: true };
     } catch (error) {
       console.error('メッセージ保存中にエラーが発生しました:', error);
@@ -74,13 +129,14 @@ export const savePreferenceTool = createTool({
   inputSchema: z.object({
     key: z.string().describe('設定キー'),
     value: z.any().describe('設定値'),
+    threadId: z.string().optional().describe('会話スレッドID'),
   }),
   outputSchema: z.object({
     success: z.boolean().describe('保存が成功したかどうか'),
   }),
   execute: async ({ context }) => {
     try {
-      conversationMemory.savePreference(context.key, context.value);
+      conversationMemory.savePreference(context.key, context.value, context.threadId);
       return { success: true };
     } catch (error) {
       console.error('設定保存中にエラーが発生しました:', error);
@@ -93,20 +149,26 @@ export const savePreferenceTool = createTool({
 export const extractSearchCriteriaTool = createTool({
   id: 'extract-search-criteria',
   description: '会話履歴から物件検索条件を抽出します',
-  inputSchema: z.object({}),
+  inputSchema: z.object({
+    threadId: z.string().optional().describe('会話スレッドID'),
+  }),
   outputSchema: z.object({
     criteria: z.record(z.any()).describe('抽出された検索条件'),
   }),
-  execute: async () => {
+  execute: async ({ context }) => {
     try {
       // 保存されたユーザー設定から検索条件を構築
-      const preferences = conversationMemory.getAllPreferences();
+      const preferences = conversationMemory.getAllPreferences(context.threadId);
       
       // 検索条件のマッピング
       const criteria: Record<string, any> = {};
       
       // 予算範囲
-      if (preferences.minBudget || preferences.maxBudget) {
+      if (preferences.budget) {
+        criteria['賃料・価格'] = {
+          max: preferences.budget,
+        };
+      } else if (preferences.minBudget || preferences.maxBudget) {
         criteria['賃料・価格'] = {
           min: preferences.minBudget,
           max: preferences.maxBudget,
@@ -124,15 +186,23 @@ export const extractSearchCriteriaTool = createTool({
       }
       
       // 駅からの距離
-      if (preferences.maxStationDistance) {
+      if (preferences.stationDistance) {
         // 駅からの距離は分単位で保存されていることが多い
-        criteria['駅1'] = {
+        criteria['最寄駅距離'] = {
+          max: preferences.stationDistance,
+        };
+      } else if (preferences.maxStationDistance) {
+        criteria['最寄駅距離'] = {
           max: preferences.maxStationDistance,
         };
       }
       
       // 面積
-      if (preferences.minArea || preferences.maxArea) {
+      if (preferences.size) {
+        criteria['建物面積・専有面積'] = {
+          min: preferences.size,
+        };
+      } else if (preferences.minArea || preferences.maxArea) {
         criteria['建物面積・専有面積'] = {
           min: preferences.minArea,
           max: preferences.maxArea,

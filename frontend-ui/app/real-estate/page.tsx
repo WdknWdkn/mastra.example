@@ -81,6 +81,7 @@ export default function RealEstatePage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [threadId, setThreadId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 初回ロード時に物件データを読み込む
@@ -148,7 +149,10 @@ export default function RealEstatePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ 
+          message: userMessage,
+          threadId: threadId // スレッドIDを送信
+        }),
       });
       
       const data = await response.json();
@@ -163,9 +167,19 @@ export default function RealEstatePage() {
         { role: 'assistant', content: data.response },
       ]);
       
+      // スレッドIDを保存
+      if (data.threadId) {
+        setThreadId(data.threadId);
+      }
+      
       // 物件データを更新
       if (data.properties && data.properties.length > 0) {
         setProperties(data.properties);
+      }
+      
+      // 地域別物件データがある場合は追加
+      if (data.regionProperties && data.regionProperties.length > 0) {
+        setProperties(prev => [...prev, ...data.regionProperties]);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '不明なエラーが発生しました');
